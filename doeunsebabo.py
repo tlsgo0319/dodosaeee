@@ -43,4 +43,37 @@ def format_answer(a, d):
         return f"aₙ = {d}n + ({c})"
 
 # Streamlit UI
-st.title("🎮
+st.title("🎮 등차수열 일반항 맞히기 게임")
+st.write("아래 수열의 일반항 aₙ을 n에 대한 식으로 맞혀보세요!")
+st.markdown("*입력 예시*: `3n + 2`, `-2*n + 5`, `4*(n-1) - 3`")
+st.markdown("종료하려면 **페이지를 닫거나 새로고침**하세요.")
+
+# 세션 상태 초기화
+if 'score' not in st.session_state:
+    st.session_state.score = 0
+if 'sequence' not in st.session_state:
+    st.session_state.sequence, st.session_state.a, st.session_state.d = generate_sequence()
+
+# 문제 제시
+st.subheader(f"수열: {st.session_state.sequence}")
+
+# 사용자 입력
+user_input = st.text_input("aₙ = ", key="user_input")
+
+# 정답 판정
+if st.button("제출"):
+    if user_input.strip() == "":
+        st.warning("수식을 입력해주세요.")
+    elif check_answer(user_input, st.session_state.a, st.session_state.d):
+        st.success("✅ 정답입니다!")
+        st.session_state.score += 1
+        st.session_state.sequence, st.session_state.a, st.session_state.d = generate_sequence()
+        st.experimental_rerun()
+    else:
+        st.error("❌ 오답입니다.")
+        st.info(f"정답 예시: {format_answer(st.session_state.a, st.session_state.d)}")
+        st.session_state.sequence, st.session_state.a, st.session_state.d = generate_sequence()
+        st.experimental_rerun()
+
+# 점수 표시
+st.metric("현재 점수", st.session_state.score)
